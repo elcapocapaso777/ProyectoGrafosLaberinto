@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prueba - Maze Canvas Detallado</title>
+  <link rel="stylesheet" href="./css/maze.css">
+</head>
+<body>
+  <div class="container">
+    <canvas id="mazeCanvas"></canvas>
+  </div>
+  <div class="controls">
+    <button id="replay">Reproducir solución</button>
+  </div>
+  <script src="./js/mazeCanvas.js"></script>
+  <script>
+    // Ejemplo rápido de uso:
+    const canvas = document.getElementById('mazeCanvas');
+    // Ajuste visual
+    canvas.style.width = '800px';
+    canvas.style.height = '800px';
+
+    // Ejemplo de laberinto simple (7x7) con estructura walls
+    const sampleMaze = {
+      rows: 7,
+      cols: 7,
+      cells: []
+    };
+    for (let r = 0; r < sampleMaze.rows; r++) {
+      sampleMaze.cells[r] = [];
+      for (let c = 0; c < sampleMaze.cols; c++) {
+        sampleMaze.cells[r][c] = { walls: { top: false, right: false, bottom: false, left: false } };
+      }
+    }
+    // contorno con paredes
+    for (let c=0;c<sampleMaze.cols;c++){
+      sampleMaze.cells[0][c].walls.top = true;
+      sampleMaze.cells[sampleMaze.rows-1][c].walls.bottom = true;
+    }
+    for (let r=0;r<sampleMaze.rows;r++){
+      sampleMaze.cells[r][0].walls.left = true;
+      sampleMaze.cells[r][sampleMaze.cols-1].walls.right = true;
+    }
+    // añadir algunas paredes internas de ejemplo
+    sampleMaze.cells[1][1].walls.right = true;
+    sampleMaze.cells[1][2].walls.bottom = true;
+    sampleMaze.cells[2][2].walls.right = true;
+    sampleMaze.cells[3][3].walls.top = true;
+
+    // camino ejemplo
+    const samplePath = [
+      {r:1,c:1},{r:1,c:2},{r:2,c:2},{r:3,c:2},{r:3,c:3},{r:4,c:3},{r:5,c:3}
+    ];
+
+    const renderer = createMazeRenderer(canvas);
+    renderer.render(sampleMaze, { cellSize: 100, wallThickness: 12, textureIntensity: 0.7, path: samplePath });
+
+    document.getElementById('replay').addEventListener('click', () => {
+      renderer.animatePath(samplePath, sampleMaze, { cellSize: 100, duration: 2400 });
+    });
+  </script>
+</body>
+</html>

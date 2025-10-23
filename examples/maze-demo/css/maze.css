@@ -1,0 +1,8 @@
+:root{
+  --bg1: #0f1724;
+  --bg2: #142238;
+}
+html,body{height:100%;margin:0;font-family:Inter,system-ui}
+.container{display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+canvas{background:transparent;display:block;max-width:100%;height:auto;border-radius:8px;box-shadow: 0 6px 24px rgba(0,0,0,0.5);}
+.controls{position:fixed;right:18px;top:18px;background:rgba(255,255,255,0.04);padding:10px;border-radius:8px;color:#fff;font-size:14px}
