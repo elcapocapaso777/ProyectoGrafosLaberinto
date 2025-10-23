@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laberinto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <!-- para la imagen de fondo -->
+    <div class="containerdel-laberinto-background">
+
+    <div class="container">
+        <h1 class="recuadro-h1">MiniLaberinto</h1>
+        <h2 class="recuadro-h2">Encuentra por ti mismo el camino mas corto</h2>
+        <div class="botones">
+            <button id="crear-laberinto">Crear Laberinto</button>
+            <button id="ver-solucion" disabled>Ver Solución</button>
+        </div>
+        <div id="laberinto"></div>
+        <div id="solucion"></div>
+
+    </div>
+
+    <script> 
+        let matrizdeNodos_dato =[];
+        let laberintoMatriz = [];
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('crear-laberinto').addEventListener('click', function() {
+                fetch('/crear_laberinto')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error('Error:', data.error);
+                            return;
+                        }
+                        if (data.matriz && data.matrizNodo) {
+                            laberintoMatriz = data.matriz;
+                            matrizdeNodos_dato= data.matrizNodo
+                            dibujarLaberinto(data.matriz, data.matrizNodo);
+                            document.getElementById('ver-solucion').disabled = false;
+                        } else {
+                            console.error('La respuesta no contiene una matriz');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+
+            document.getElementById('ver-solucion').addEventListener('click', function() {
+                fetch('/obtener_solucion')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('La solicitud no pudo ser completada correctamente.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Respuesta del servidor:', data);
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        document.getElementById('solucion').textContent = `Costo de la solución: ${data.costo}`;
+                        if (data.pasos) {
+                            visualizarPasos(data.pasos);
+                        } else {
+                            throw new Error('La respuesta no contiene pasos válidos.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('solucion').textContent = `Error: ${error.message}`;
+                    });
+            });
+
+            function dibujarLaberinto(matriz, matrizNodo) {
+                const laberinto = document.getElementById('laberinto');
+                laberinto.innerHTML = '';
+                const filas = matriz.length;
+                const columnas = matriz[0].length;
+
+                for (let i = 0; i < filas; i++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'fila';
+                    for (let j = 0; j < columnas; j++) {
+                        const celdaDiv = document.createElement('div');
+                        celdaDiv.className = 'celda';
+                        if (matriz[i][j] === 1) {
+                            celdaDiv.classList.add('pared');
+                        } else {
+                            celdaDiv.classList.add('camino');
+                        }
+
+                        // Añadir el número del nodo a la celda
+                        const nodoNumero = matrizNodo[i][j];  // Supone que `nodos` es una matriz que tiene los números de nodo
+                        celdaDiv.textContent = nodoNumero;
+
+                        // Identificar la celda de inicio (esquina superior izquierda del laberinto)
+                        if (i === 1 && j === 1) {
+                            celdaDiv.classList.add('inicio');
+                        }
+
+                        // Identificar la celda final (esquina inferior derecha del laberinto)
+                        if (i === filas - 2 && j === columnas - 2) {
+                            celdaDiv.classList.add('fin');
+                        }
+
+                        rowDiv.appendChild(celdaDiv);
+                    }
+                    laberinto.appendChild(rowDiv);
+                }
+            }
+
+            function visualizarPasos(pasos) {
+                let index = 0;
+                function mostrarPaso() {
+                    if (index < pasos.length) {
+                        const paso = pasos[index];
+                        dibujarCaminoParcial(paso.camino_actual);
+                        document.getElementById('solucion').textContent = `Paso ${index + 1}: Nodo actual ${paso.nodo_actual}, Nodo siguiente ${paso.nodo_siguiente}, Peso actual ${paso.peso_actual}`;
+                        index++;
+                        setTimeout(mostrarPaso, 1000);  // Espera 1 segundo antes del siguiente paso
+                    } else {
+                        document.getElementById('solucion').textContent += ' - Visualización completa';
+                    }
+                }
+                mostrarPaso();
+            }
+
+            function dibujarCaminoParcial(camino) {
+                // Usa la función dibujarCamino existente, pero limpia el camino anterior primero
+                const laberinto = document.getElementById('laberinto');
+                const celdasPrevias = laberinto.getElementsByClassName('camino-solucion');
+                Array.from(celdasPrevias).forEach(celda => {
+                    celda.classList.remove('camino-solucion');
+                });
+                dibujarCamino(camino);
+            }
+            function dibujarCamino(camino) {
+                const laberinto = document.getElementById('laberinto');
+                if (!laberinto) {
+                    console.error('No se encontró el elemento del laberinto.');
+                    return;
+                }
+
+                // Limpiar cualquier camino previamente dibujado
+                const celdasPrevias = laberinto.getElementsByClassName('camino-solucion');
+                Array.from(celdasPrevias).forEach(celda => {
+                    celda.classList.remove('camino-solucion');
+                });
+
+                const filas = laberintoMatriz.length;
+                const columnas = laberintoMatriz[0].length;
+
+                // Convertir el camino a coordenadas de la matriz visual
+                const caminoVisual = camino.map(pos => {
+                    const fila = Math.floor(pos / ((columnas - 1) / 2));
+                    const columna = pos % ((columnas - 1) / 2);
+                    return {i: fila * 2 + 1, j: columna * 2 + 1};
+                });
+
+                // Dibujar los nodos del camino
+                caminoVisual.forEach(({i, j}) => {
+                    if (laberinto.children[i] && laberinto.children[i].children[j]) {
+                        laberinto.children[i].children[j].classList.add('camino-solucion');
+                    }
+                });
+
+                // Dibujar las conexiones entre los nodos
+                for (let k = 0; k < caminoVisual.length - 1; k++) {
+                    const actual = caminoVisual[k];
+                    const siguiente = caminoVisual[k + 1];
+                    
+                    // Calcular las celdas intermedias
+                    const iMedio = (actual.i + siguiente.i) / 2;
+                    const jMedio = (actual.j + siguiente.j) / 2;
+                    
+                    if (laberinto.children[iMedio] && laberinto.children[iMedio].children[jMedio]) {
+                        laberinto.children[iMedio].children[jMedio].classList.add('camino-solucion');
+                    }
+                }
+
+                console.log('Camino dibujado:', camino);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+
+
+body {
+    font-family: Arial, sans-serif;
+    height: 50% ;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 50%;
+    margin: auto;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* para la imagen Laberinto.png*/
+.containerdel-laberinto-background {
+    width: 100%;
+    height: 100vh;
+    margin: 30px;
+    padding: 0px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: url('/static/images/laberinto_noche.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+h1 {
+    color: #fffafa;
+    text-align: center;
+}
+.recuadro-h1 {
+    background-color: rgb(0, 0, 0);
+    color: white; /* Cambia el color del texto para que sea legible sobre el fondo azul */
+    padding: 10px; /* Espaciado interno para que el texto no esté pegado al borde */
+    border-radius: 8px; /* Esquinas redondeadas */
+}
+
+h2 {
+    color: #ffffff;
+    text-align: center;
+}
+
+.recuadro-h2 {
+    background-color: rgb(0, 0, 0);
+    color: white; /* Cambia el color del texto para que sea legible sobre el fondo azul */
+    padding: 10px; /* Espaciado interno para que el texto no esté pegado al borde */
+    border-radius: 4px; /* Esquinas redondeadas */
+}
+
+.botones {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition-duration: 0.5s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+#laberinto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.fila {
+    display: flex;
+}
+
+.celda {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ddd;
+}
+
+.pared {
+    background-color: #333;
+}
+
+.camino {
+    background-color: #ffffff;
+}
+
+.celda.inicio {
+    background-color: #4CAF50; /* Verde */
+}
+
+.celda.fin {
+    background-color: #f44336; /* Rojo */
+}
+
+#solucion {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+.camino-solucion {
+    background-color: yellow !important;
+}
